@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Management – Web Version</title>
+  <style>
+    :root{
+      --bg:#0f172a;           /* slate-900 */
+      --panel:#111827;        /* gray-900 */
+      --muted:#1f2937;        /* gray-800 */
+      --text:#e5e7eb;         /* gray-200 */
+      --sub:#9ca3af;          /* gray-400 */
+      --accent:#22d3ee;       /* cyan-400 */
+      --bad:#ef4444;          /* red-500 */
+      --good:#22c55e;         /* green-500 */
+      --warn:#f59e0b;         /* amber-500 */
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:linear-gradient(160deg,#0b1024,#0f172a 40%); color:var(--text);
+      font: 14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
+      min-height:100dvh; display:flex; flex-direction:column; align-items:center;
+    }
+    header{
+      width:100%; max-width:1100px; padding:24px 16px; position:sticky; top:0; z-index:10;
+      background:linear-gradient(180deg, rgba(15,23,42,.95), rgba(15,23,42,.75) 70%, transparent);
+      backdrop-filter: blur(6px);
+    }
+    .brand{display:flex; gap:12px; align-items:center}
+    .logo{width:36px; height:36px; border-radius:10px; background:radial-gradient(circle at 30% 30%, var(--accent), #6366f1);
+      box-shadow:0 0 24px rgba(34,211,238,.35)}
+    h1{font-size:20px; margin:0}
+    .sub{color:var(--sub)}
+
+    main{width:100%; max-width:1100px; padding:0 16px 48px; display:grid; grid-template-columns: 280px 1fr; gap:16px}
+    nav{background:var(--panel); border:1px solid #1f2937; border-radius:16px; padding:12px}
+    .tab{width:100%; text-align:left; padding:10px 12px; border-radius:10px; border:1px solid transparent; color:var(--text);
+         background:transparent; cursor:pointer; margin:4px 0; font-weight:600}
+    .tab.active{background:var(--muted); border-color:#374151}
+
+    section#content{background:var(--panel); border:1px solid #1f2937; border-radius:16px; padding:16px}
+    .row{display:grid; grid-template-columns: repeat(12,1fr); gap:12px}
+    .card{grid-column: span 12; background:var(--muted); border:1px solid #374151; border-radius:14px; padding:14px}
+    .card h3{margin:0 0 10px; font-size:16px}
+
+    input, select, textarea{width:100%; background:#0b1220; color:var(--text); border:1px solid #334155; border-radius:10px; padding:10px}
+    label{font-size:12px; color:var(--sub)}
+    .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+
+    .btn{appearance:none; border:1px solid #475569; background:#0b1220; color:var(--text); padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700}
+    .btn:hover{border-color:var(--accent)}
+    .btn.primary{background:linear-gradient(180deg,#1b2a4a,#111827); border-color:var(--accent); box-shadow:0 0 18px rgba(34,211,238,.15)}
+    .btn.danger{border-color:var(--bad)}
+    .btn.success{border-color:var(--good)}
+
+    table{width:100%; border-collapse:collapse; overflow:auto}
+    th,td{border-bottom:1px solid #374151; padding:10px; text-align:left}
+    tr:hover td{background:#0b1220}
+    .pill{display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid #384152}
+
+    footer{color:var(--sub); padding:24px 16px}
+
+    @media (max-width:900px){ main{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>User/Course Manager – Web</h1>
+        <div class="sub">HTML/JS version of your C++ console program. Data saved to your browser (localStorage).</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <nav>
+      <button class="tab active" data-tab="users">👤 Users</button>
+      <button class="tab" data-tab="courses">📚 Courses</button>
+      <button class="tab" data-tab="attendance">🗓️ Attendance</button>
+      <button class="tab" data-tab="marks">🧮 Marks</button>
+      <button class="tab" data-tab="results">📄 Results</button>
+      <hr style="border-color:#1f2937; margin:10px 0">
+      <div class="sub" style="font-size:12px">Tip: export your data at the bottom of any tab.</div>
+    </nav>
+
+    <section id="content">
+      <!-- USERS TAB -->
+      <div class="view" id="view-users">
+        <div class="row">
+          <div class="card">
+            <h3>Add / Update User</h3>
+            <div class="grid-3">
+              <div><label>Registration #</label><input id="u-reg" type="number" placeholder="e.g. 101"/></div>
+              <div><label>Name</label><input id="u-name" placeholder="e.g. Ali"/></div>
+              <div><label>Father Name</label><input id="u-fname" placeholder="e.g. Ahmed"/></div>
+              <div><label>Address</label><input id="u-addr" placeholder="City, Area"/></div>
+              <div><label>Phone</label><input id="u-phone" placeholder="03xx-xxxxxxx"/></div>
+              <div><label>CNIC</label><input id="u-cnic" placeholder="xxxxx-xxxxxxx-x"/></div>
+              <div><label>Role</label><input id="u-role" placeholder="Student/Teacher"/></div>
+              <div><label>Department</label><input id="u-dept" placeholder="CS, SE, ..."/></div>
+              <div><label>Age</label><input id="u-age" placeholder="e.g. 21"/></div>
+            </div>
+            <div style="margin-top:10px; display:flex; gap:10px">
+              <button class="btn primary" id="btn-save-user">Save User</button>
+              <button class="btn" id="btn-reset-user">Reset</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Users</h3>
+            <div class="grid-3" style="margin-bottom:8px">
+              <div style="grid-column: span 2"><input id="search-user" placeholder="Search by name..."/></div>
+              <div style="display:flex; gap:8px; justify-content:flex-end">
+                <button class="btn" id="btn-export-users">Export</button>
+                <input type="file" id="import-users" accept="application/json" style="display:none">
+                <button class="btn" id="btn-import-users">Import</button>
+                <button class="btn danger" id="btn-clear-users">Clear All</button>
+              </div>
+            </div>
+            <div style="overflow:auto">
+              <table id="tbl-users">
+                <thead>
+                  <tr>
+                    <th>Reg#</th><th>Name</th><th>Father</th><th>Address</th><th>Phone</th><th>CNIC</th><th>Role</th><th>Dept</th><th>Age</th><th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COURSES TAB -->
+      <div class="view" id="view-courses" style="display:none">
+        <div class="row">
+          <div class="card">
+            <h3>Add Course</h3>
+            <div class="grid-2">
+              <div><input id="course-name" placeholder="Course name"/></div>
+              <div style="display:flex; gap:8px">
+                <button class="btn primary" id="btn-add-course">Add</button>
+                <button class="btn" id="btn-export-courses">Export</button>
+                <input type="file" id="import-courses" accept="application/json" style="display:none">
+                <button class="btn" id="btn-import-courses">Import</button>
+                <button class="btn danger" id="btn-clear-courses">Clear All</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Courses</h3>
+            <table id="tbl-courses"><thead><tr><th>#</th><th>Name</th><th>Actions</th></tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATTENDANCE TAB -->
+      <div class="view" id="view-attendance" style="display:none">
+        <div class="row">
+          <div class="card">
+            <h3>Mark Attendance</h3>
+            <div class="grid-3">
+              <div><input id="att-name" placeholder="Name"/></div>
+              <div><input id="att-date" type="date"/></div>
+              <div>
+                <select id="att-status">
+                  <option value="Present">Present</option>
+                  <option value="Absent">Absent</option>
+                  <option value="Leave">Leave</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top:10px"><button class="btn primary" id="btn-add-att">Mark</button></div>
+          </div>
+          <div class="card">
+            <h3>Attendance Records</h3>
+            <table id="tbl-att"><thead><tr><th>#</th><th>Name</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table>
+            <div style="margin-top:8px; display:flex; gap:8px; justify-content:flex-end">
+              <button class="btn" id="btn-export-att">Export</button>
+              <input type="file" id="import-att" accept="application/json" style="display:none">
+              <button class="btn" id="btn-import-att">Import</button>
+              <button class="btn danger" id="btn-clear-att">Clear All</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARKS TAB -->
+      <div class="view" id="view-marks" style="display:none">
+        <div class="row">
+          <div class="card">
+            <h3>Add Marks</h3>
+            <div class="grid-3">
+              <div><input id="marks-name" placeholder="Name"/></div>
+              <div><input id="marks-subject" placeholder="Subject"/></div>
+              <div><input id="marks-score" type="number" placeholder="Score (0-100)"/></div>
+            </div>
+            <div style="margin-top:10px"><button class="btn primary" id="btn-add-marks">Add</button></div>
+          </div>
+          <div class="card">
+            <h3>Marks</h3>
+            <table id="tbl-marks"><thead><tr><th>#</th><th>Name</th><th>Subject</th><th>Score</th><th>Actions</th></tr></thead><tbody></tbody></table>
+            <div style="margin-top:8px; display:flex; gap:8px; justify-content:flex-end">
+              <button class="btn" id="btn-export-marks">Export</button>
+              <input type="file" id="import-marks" accept="application/json" style="display:none">
+              <button class="btn" id="btn-import-marks">Import</button>
+              <button class="btn danger" id="btn-clear-marks">Clear All</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTS TAB -->
+      <div class="view" id="view-results" style="display:none">
+        <div class="row">
+          <div class="card">
+            <h3>Add Result</h3>
+            <div class="grid-3">
+              <div><input id="res-name" placeholder="Name"/></div>
+              <div><input id="res-text" placeholder="Result summary (e.g. Passed)"/></div>
+              <div><input id="res-date" type="date"/></div>
+            </div>
+            <div style="margin-top:10px"><button class="btn primary" id="btn-add-res">Add</button></div>
+          </div>
+          <div class="card">
+            <h3>Results</h3>
+            <table id="tbl-res"><thead><tr><th>#</th><th>Name</th><th>Result</th><th>Date</th><th>Actions</th></tr></thead><tbody></tbody></table>
+            <div style="margin-top:8px; display:flex; gap:8px; justify-content:flex-end">
+              <button class="btn" id="btn-export-res">Export</button>
+              <input type="file" id="import-res" accept="application/json" style="display:none">
+              <button class="btn" id="btn-import-res">Import</button>
+              <button class="btn danger" id="btn-clear-res">Clear All</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Built for you – mirrors your original menu: New User, Show/Search/Update/Delete, Add/Remove Course, Attendance, Marks, Results. All client‑side.
+  </footer>
+
+  <script>
+    // ---------- Utilities ----------
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    const store = {
+      get(key, fallback){ try{ return JSON.parse(localStorage.getItem(key)) ?? fallback }catch{ return fallback } },
+      set(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+    };
+
+    function downloadJSON(filename, data){
+      const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+    }
+
+    async function importJSON(input){
+      return new Promise((resolve,reject)=>{
+        const f = input.files[0]; if(!f) return reject('No file');
+        const reader = new FileReader();
+        reader.onload = ()=>{ try{ resolve(JSON.parse(reader.result)) }catch(e){ reject(e) } };
+        reader.onerror = reject; reader.readAsText(f);
+      });
+    }
+
+    // ---------- Tabs ----------
+    $$('.tab').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        $$('.tab').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        const id = btn.dataset.tab;
+        $$('.view').forEach(v=>v.style.display = 'none');
+        $('#view-'+id).style.display = '';
+      })
+    });
+
+    // ---------- Users ----------
+    let users = store.get('users', []);
+
+    function userRow(u, i){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${u.reg_no ?? ''}</td>
+        <td>${u.name ?? ''}</td>
+        <td>${u.father_name ?? ''}</td>
+        <td>${u.address ?? ''}</td>
+        <td>${u.phone_number ?? ''}</td>
+        <td>${u.cnic ?? ''}</td>
+        <td>${u.role ?? ''}</td>
+        <td>${u.department ?? ''}</td>
+        <td>${u.age ?? ''}</td>
+        <td>
+          <button class="btn success" data-edit="${i}">Edit</button>
+          <button class="btn danger" data-del="${i}">Delete</button>
+        </td>`;
+      return tr;
+    }
+
+    function renderUsers(filter=''){
+      const tbody = $('#tbl-users tbody');
+      tbody.innerHTML = '';
+      users
+        .filter(u => u.name?.toLowerCase().includes(filter.toLowerCase()))
+        .forEach((u,i)=> tbody.appendChild(userRow(u,i)));
+
+      // wire actions
+      tbody.querySelectorAll('[data-edit]').forEach(btn=>btn.addEventListener('click', e=>{
+        const i = +btn.dataset.edit; const u = users[i];
+        $('#u-reg').value = u.reg_no ?? '';
+        $('#u-name').value = u.name ?? '';
+        $('#u-fname').value = u.father_name ?? '';
+        $('#u-addr').value = u.address ?? '';
+        $('#u-phone').value = u.phone_number ?? '';
+        $('#u-cnic').value = u.cnic ?? '';
+        $('#u-role').value = u.role ?? '';
+        $('#u-dept').value = u.department ?? '';
+        $('#u-age').value = u.age ?? '';
+        $('#u-name').focus();
+      }));
+      tbody.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click', e=>{
+        const i = +btn.dataset.del;
+        if(confirm('Delete this user?')){
+          users.splice(i,1); store.set('users', users); renderUsers($('#search-user').value);
+        }
+      }));
+    }
+
+    function getUserForm(){
+      return {
+        reg_no: +($('#u-reg').value || 0),
+        name: $('#u-name').value.trim(),
+        father_name: $('#u-fname').value.trim(),
+        address: $('#u-addr').value.trim(),
+        phone_number: $('#u-phone').value.trim(),
+        cnic: $('#u-cnic').value.trim(),
+        role: $('#u-role').value.trim(),
+        department: $('#u-dept').value.trim(),
+        age: $('#u-age').value.trim()
+      };
+    }
+
+    function resetUserForm(){ $$('#u-reg,#u-name,#u-fname,#u-addr,#u-phone,#u-cnic,#u-role,#u-dept,#u-age').forEach(i=>i.value=''); }
+
+    $('#btn-save-user').addEventListener('click', ()=>{
+      const u = getUserForm();
+      if(!u.name){ alert('Name is required'); return; }
+      const idx = users.findIndex(x=>x.name.toLowerCase()===u.name.toLowerCase());
+      if(idx>=0){ users[idx]=u; } else { users.push(u); }
+      store.set('users', users); renderUsers($('#search-user').value); resetUserForm();
+    });
+
+    $('#btn-reset-user').addEventListener('click', resetUserForm);
+    $('#search-user').addEventListener('input', e=> renderUsers(e.target.value));
+    $('#btn-export-users').addEventListener('click', ()=> downloadJSON('users.json', users));
+    $('#btn-import-users').addEventListener('click', ()=> $('#import-users').click());
+    $('#import-users').addEventListener('change', async (e)=>{
+      try{ const data = await importJSON(e.target); if(Array.isArray(data)){ users = data; store.set('users', users); renderUsers($('#search-user').value);} }
+      catch(err){ alert('Invalid file'); }
+      finally{ e.target.value=''; }
+    });
+    $('#btn-clear-users').addEventListener('click', ()=>{ if(confirm('Clear all users?')){ users=[]; store.set('users', users); renderUsers(); }});
+
+    renderUsers();
+
+    // ---------- Courses ----------
+    let courses = store.get('courses', []);
+    function renderCourses(){
+      const tbody = $('#tbl-courses tbody'); tbody.innerHTML='';
+      courses.forEach((c,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i+1}</td><td>${c}</td><td><button class='btn danger' data-delc='${i}'>Remove</button></td>`;
+        tbody.appendChild(tr);
+      });
+      tbody.querySelectorAll('[data-delc]').forEach(btn=>btn.addEventListener('click', ()=>{
+        const i = +btn.dataset.delc; courses.splice(i,1); store.set('courses', courses); renderCourses();
+      }));
+    }
+    $('#btn-add-course').addEventListener('click', ()=>{
+      const name = $('#course-name').value.trim(); if(!name) return alert('Enter course name');
+      courses.push(name); store.set('courses', courses); $('#course-name').value=''; renderCourses();
+    });
+    $('#btn-export-courses').addEventListener('click', ()=> downloadJSON('courses.json', courses));
+    $('#btn-import-courses').addEventListener('click', ()=> $('#import-courses').click());
+    $('#import-courses').addEventListener('change', async e=>{
+      try{ const data = await importJSON(e.target); if(Array.isArray(data)){ courses=data; store.set('courses', courses); renderCourses(); } }
+      catch{ alert('Invalid file'); }
+      finally{ e.target.value=''; }
+    });
+    $('#btn-clear-courses').addEventListener('click', ()=>{ if(confirm('Clear all courses?')){ courses=[]; store.set('courses', courses); renderCourses(); }});
+    renderCourses();
+
+    // ---------- Attendance ----------
+    let attendance = store.get('attendance', []);
+    function renderAttendance(){
+      const tbody = $('#tbl-att tbody'); tbody.innerHTML='';
+      attendance.forEach((a,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i+1}</td><td>${a.name}</td><td>${a.date}</td>
+                        <td><span class='pill'>${a.status}</span></td>
+                        <td><button class='btn danger' data-dela='${i}'>Delete</button></td>`;
+        tbody.appendChild(tr);
+      });
+      tbody.querySelectorAll('[data-dela]').forEach(btn=>btn.addEventListener('click', ()=>{
+        const i=+btn.dataset.dela; attendance.splice(i,1); store.set('attendance', attendance); renderAttendance();
+      }));
+    }
+    $('#btn-add-att').addEventListener('click', ()=>{
+      const name=$('#att-name').value.trim(); const date=$('#att-date').value; const status=$('#att-status').value;
+      if(!name||!date) return alert('Enter name and date');
+      attendance.push({name,date,status}); store.set('attendance', attendance);
+      $('#att-name').value=''; $('#att-date').value=''; $('#att-status').value='Present'; renderAttendance();
+    });
+    $('#btn-export-att').addEventListener('click', ()=> downloadJSON('attendance.json', attendance));
+    $('#btn-import-att').addEventListener('click', ()=> $('#import-att').click());
+    $('#import-att').addEventListener('change', async e=>{
+      try{ const data = await importJSON(e.target); if(Array.isArray(data)){ attendance=data; store.set('attendance', attendance); renderAttendance(); } }
+      catch{ alert('Invalid file'); }
+      finally{ e.target.value=''; }
+    });
+    $('#btn-clear-att').addEventListener('click', ()=>{ if(confirm('Clear all attendance?')){ attendance=[]; store.set('attendance', attendance); renderAttendance(); }});
+    renderAttendance();
+
+    // ---------- Marks ----------
+    let marks = store.get('marks', []);
+    function renderMarks(){
+      const tbody = $('#tbl-marks tbody'); tbody.innerHTML='';
+      marks.forEach((m,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i+1}</td><td>${m.name}</td><td>${m.subject}</td><td>${m.score}</td>
+                        <td><button class='btn danger' data-delm='${i}'>Delete</button></td>`;
+        tbody.appendChild(tr);
+      });
+      tbody.querySelectorAll('[data-delm]').forEach(btn=>btn.addEventListener('click', ()=>{
+        const i=+btn.dataset.delm; marks.splice(i,1); store.set('marks', marks); renderMarks();
+      }));
+    }
+    $('#btn-add-marks').addEventListener('click', ()=>{
+      const name=$('#marks-name').value.trim(); const subject=$('#marks-subject').value.trim(); const score=+($('#marks-score').value||0);
+      if(!name||!subject) return alert('Enter name and subject');
+      if(score<0||score>100) return alert('Score must be 0-100');
+      marks.push({name,subject,score}); store.set('marks', marks);
+      $('#marks-name').value=''; $('#marks-subject').value=''; $('#marks-score').value=''; renderMarks();
+    });
+    $('#btn-export-marks').addEventListener('click', ()=> downloadJSON('marks.json', marks));
+    $('#btn-import-marks').addEventListener('click', ()=> $('#import-marks').click());
+    $('#import-marks').addEventListener('change', async e=>{
+      try{ const data = await importJSON(e.target); if(Array.isArray(data)){ marks=data; store.set('marks', marks); renderMarks(); } }
+      catch{ alert('Invalid file'); }
+      finally{ e.target.value=''; }
+    });
+    $('#btn-clear-marks').addEventListener('click', ()=>{ if(confirm('Clear all marks?')){ marks=[]; store.set('marks', marks); renderMarks(); }});
+    renderMarks();
+
+    // ---------- Results ----------
+    let results = store.get('results', []);
+    function renderResults(){
+      const tbody = $('#tbl-res tbody'); tbody.innerHTML='';
+      results.forEach((r,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i+1}</td><td>${r.name}</td><td>${r.text}</td><td>${r.date}</td>
+                        <td><button class='btn danger' data-delr='${i}'>Delete</button></td>`;
+        tbody.appendChild(tr);
+      });
+      tbody.querySelectorAll('[data-delr]').forEach(btn=>btn.addEventListener('click', ()=>{
+        const i=+btn.dataset.delr; results.splice(i,1); store.set('results', results); renderResults();
+      }));
+    }
+    $('#btn-add-res').addEventListener('click', ()=>{
+      const name=$('#res-name').value.trim(); const text=$('#res-text').value.trim(); const date=$('#res-date').value;
+      if(!name||!text||!date) return alert('Enter name, result and date');
+      results.push({name,text,date}); store.set('results', results);
+      $('#res-name').value=''; $('#res-text').value=''; $('#res-date').value=''; renderResults();
+    });
+    $('#btn-export-res').addEventListener('click', ()=> downloadJSON('results.json', results));
+    $('#btn-import-res').addEventListener('click', ()=> $('#import-res').click());
+    $('#import-res').addEventListener('change', async e=>{
+      try{ const data = await importJSON(e.target); if(Array.isArray(data)){ results=data; store.set('results', results); renderResults(); } }
+      catch{ alert('Invalid file'); }
+      finally{ e.target.value=''; }
+    });
+    $('#btn-clear-res').addEventListener('click', ()=>{ if(confirm('Clear all results?')){ results=[]; store.set('results', results); renderResults(); }});
+    renderResults();
+  </script>
+</body>
+</html>
